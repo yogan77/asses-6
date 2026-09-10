@@ -1,8 +1,10 @@
-package com.access;
+package com.example;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
 
 class Employee {
     private final String employeeId;
@@ -15,10 +17,11 @@ class Employee {
 
     public Employee(String employeeId, String name, int age, String department, 
                     int securityClearanceLevel, boolean isIdValid, boolean isActive) {
-        if (employeeId == null || employeeId.blank()) throw new IllegalArgumentException("Employee ID cannot be empty.");
-        if (name == null || name.blank()) throw new IllegalArgumentException("Name cannot be empty.");
+        // Replaced .blank() with standard .trim().isEmpty() to support older JRE versions
+        if (employeeId == null || employeeId.trim().isEmpty()) throw new IllegalArgumentException("Employee ID cannot be empty.");
+        if (name == null || name.trim().isEmpty()) throw new IllegalArgumentException("Name cannot be empty.");
         if (age < 0) throw new IllegalArgumentException("Age cannot be negative.");
-        if (department == null || department.blank()) throw new IllegalArgumentException("Department cannot be empty.");
+        if (department == null || department.trim().isEmpty()) throw new IllegalArgumentException("Department cannot be empty.");
         if (securityClearanceLevel < 0) throw new IllegalArgumentException("Security clearance level cannot be negative.");
 
         this.employeeId = employeeId;
@@ -47,7 +50,7 @@ class EvaluationResult {
 
     public EvaluationResult(Status status, List<String> reasons) {
         this.status = status;
-        this.reasons = new ArrayList<>(reasons);
+        this.reasons = new ArrayList<String>(reasons);
     }
 
     public Status getStatus() { return status; }
@@ -60,12 +63,13 @@ class EvaluationResult {
 }
 
 class EligibilityEvaluator {
-    private static final Set<String> AUTH_DEPTS = Set.of("IT", "HR", "FINANCE", "ADMINISTRATION");
+    // Standard initialization safe across basic Java compilers
+    private static final Set<String> AUTH_DEPTS = new HashSet<String>(Arrays.asList("IT", "HR", "FINANCE", "ADMINISTRATION"));
 
     public static EvaluationResult evaluateAccess(Employee employee, int requiredLevel) {
         if (employee == null) throw new IllegalArgumentException("Employee cannot be null");
         
-        List<String> reasons = new ArrayList<>();
+        List<String> reasons = new ArrayList<String>();
 
         if (employee.getAge() < 21) reasons.add("Age is below 21.");
         if (!AUTH_DEPTS.contains(employee.getDepartment().toUpperCase())) reasons.add("Department is not authorized.");
@@ -78,15 +82,15 @@ class EligibilityEvaluator {
 
         if (employee.getSecurityClearanceLevel() < requiredLevel) {
             return new EvaluationResult(EvaluationResult.Status.CONDITIONALLY_ELIGIBLE, 
-                List.of("Insufficient clearance. Required: " + requiredLevel + ", Actual: " + employee.getSecurityClearanceLevel()));
+                Arrays.asList("Insufficient clearance. Required: " + requiredLevel + ", Actual: " + employee.getSecurityClearanceLevel()));
         }
 
-        return new EvaluationResult(EvaluationResult.Status.ELIGIBLE, List.of());
+        return new EvaluationResult(EvaluationResult.Status.ELIGIBLE, new ArrayList<String>());
     }
 }
 
 public class AccessSystem {
     public static void main(String[] args) {
-        System.out.println("System operational. Run 'mvn test' to execute all thorough test cases.");
+        System.out.println("System operational.");
     }
 }
